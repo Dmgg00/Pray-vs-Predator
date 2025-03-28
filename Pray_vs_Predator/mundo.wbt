@@ -1,0 +1,68 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Asphalt.proto"
+EXTERNPROTO "../protos/Khepera4Pray.proto"
+EXTERNPROTO "../protos/Khepera4Predator.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Parquetry.proto"
+
+WorldInfo {
+  shadows FALSE
+}
+Viewpoint {
+  orientation 0.33145948336977465 0.016795213208929387 -0.9433199519237937 3.0460598649816455
+  position 3.166944603521183 -0.5478681678492912 2.4576813278461747
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 5 5
+  floorAppearance Parquetry {
+    type "light strip"
+  }
+}
+Khepera4Predator {
+  translation 0.408551 -0.364359 0
+  name "Khepera IV(1)"
+  controller "khepera4"
+}
+Solid {
+  translation 1.17091 1.31144 -1.9984e-15
+  children [
+    Shape {
+      appearance Asphalt {
+      }
+      geometry Box {
+        size 0.1 3.085568060681531 0.1
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.1 3.0819545391713996 0.1
+  }
+  physics Physics {
+  }
+}
+Solid {
+  translation 0 -1.35979 -1.9984e-15
+  children [
+    Shape {
+      appearance Asphalt {
+      }
+      geometry Box {
+        size 0.1 2.3350486777859025 0.1
+      }
+    }
+  ]
+  name "solid(1)"
+  boundingObject Box {
+    size 0.1 2.334897168222348 0.1
+  }
+  physics Physics {
+  }
+}
+Khepera4Pray {
+  translation 0.382224 -0.767766 -4.44089e-16
+  controller "khepera4Pray"
+}
