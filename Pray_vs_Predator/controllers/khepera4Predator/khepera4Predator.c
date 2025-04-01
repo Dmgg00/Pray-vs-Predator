@@ -48,11 +48,33 @@ static const char *infrared_sensors_names[NUMBER_OF_INFRARED_SENSORS] = {
 char* generate_filename() {
     time_t t = time(NULL);
     struct tm *tm_info = localtime(&t);
-    
-    char *filename = (char *)malloc(100 * sizeof(char));
-      strftime(filename, 100, "/home/mapache/Pictures/pr_py_test/khepera_predator_%Y%m%d_%H%M%S.png", tm_info);
-    
-    return filename;
+
+    // Obtener la ruta de HOME
+    const char *home = getenv("HOME");
+    if (home == NULL) {
+        fprintf(stderr, "Error: No se pudo obtener la variable HOME.\n");
+        return NULL;
+    }
+
+    // Tamaño suficiente para la ruta completa
+    size_t max_size = strlen(home) + strlen("/Pray-vs-Predator/Pray_vs_Predator/images/Predator/khepera_predator_YYYYMMDD_HHMMSS.png") + 1;
+    char *filepath = (char *)malloc(max_size);
+    if (filepath == NULL) {
+        fprintf(stderr, "Error: No se pudo asignar memoria para el filename.\n");
+        return NULL;
+    }
+
+    // Construir la ruta base
+    snprintf(filepath, max_size, "%s/Pray-vs-Predator/Pray_vs_Predator/images/Predator/", home);
+
+    // Generar el nombre con la fecha y hora
+    char timestamp[50];  // Espacio suficiente para la fecha y hora
+    strftime(timestamp, sizeof(timestamp), "khepera_predator_%Y%m%d_%H%M%S.png", tm_info);
+
+    // Concatenar la ruta con el nombre del archivo
+    strncat(filepath, timestamp, max_size - strlen(filepath) - 1);
+
+    return filepath;  // Retorna la ruta completa del archivo
 }
 
 int main(int argc, char **argv) {
@@ -121,6 +143,7 @@ int main(int argc, char **argv) {
         }
         
       const unsigned char *image = wb_camera_get_image(camera);
+
         if (image) {
             printf("📸 Capturando imagen...\n");
 
@@ -137,6 +160,7 @@ int main(int argc, char **argv) {
 
             // Crear un nombre de archivo único
             char *filename = generate_filename();
+
 
             // Guardar la imagen en formato PNG
             if (stbi_write_png(filename, width, height, 3, rgb_image, width * 3)) {

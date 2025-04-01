@@ -3,15 +3,15 @@
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Asphalt.proto"
-EXTERNPROTO "../protos/Khepera4Pray.proto"
 EXTERNPROTO "../protos/Khepera4Predator.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Parquetry.proto"
+IMPORTABLE EXTERNPROTO "../protos/Khepera4Pray.proto"
 
 WorldInfo {
 }
 Viewpoint {
-  orientation 0.33145948336977465 0.016795213208929387 -0.9433199519237937 3.0460598649816455
-  position 3.166944603521183 -0.5478681678492912 2.4576813278461747
+  orientation 0.2965959685406743 -0.10637861614885233 -0.9490597565336307 3.7977674551571754
+  position 2.552054851551479 -1.1543124887513432 1.26426099322001
 }
 TexturedBackgroundLight {
 }
@@ -22,12 +22,14 @@ RectangleArena {
   }
 }
 Khepera4Predator {
-  translation 0.408551 -0.364359 0
+  translation 0.237697 0.272204 -0.000160509
+  rotation -3.096818554169204e-06 -2.4829658507240495e-06 0.9999999999921223 2.4661465564601293
   name "Khepera IV(1)"
-  controller "khepera4"
+  controller "khepera4Predator"
 }
 Solid {
-  translation 1.17091 1.31144 -1.9984e-15
+  translation 1.17091 1.3117267667501094 0.00409331151464034
+  rotation -1 -1.602915282460456e-13 1.3183693313683205e-15 0.017001825901826396
   children [
     Shape {
       appearance Asphalt {
@@ -44,7 +46,8 @@ Solid {
   }
 }
 Solid {
-  translation 0 -1.35979 -1.9984e-15
+  translation -2.8170540717928377e-18 -1.3400017801013824 0.03968842412240786
+  rotation 1 6.599220787284256e-13 -6.143438137275884e-15 0.0006843673382509704
   children [
     Shape {
       appearance Asphalt {
@@ -62,6 +65,6 @@ Solid {
   }
 }
 Khepera4Pray {
-  translation 0.382224 -0.767766 -4.44089e-16
+  rotation 0 0 1 2.0944
   controller "khepera4Pray"
 }
