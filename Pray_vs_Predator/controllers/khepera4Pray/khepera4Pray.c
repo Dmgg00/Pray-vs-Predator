@@ -68,7 +68,7 @@ char* generate_filename() {
     snprintf(filepath, max_size, "%s/Pray-vs-Predator/Pray_vs_Predator/images/Pray/", home);
 
     // Generar el nombre con la fecha y hora
-    char timestamp[30];  // Espacio suficiente para la fecha y hora
+    char timestamp[40];  // Espacio suficiente para la fecha y hora
     strftime(timestamp, sizeof(timestamp), "khepera_pray_%Y%m%d_%H%M%S.png", tm_info);
 
     // Concatenar la ruta con el nombre del archivo
