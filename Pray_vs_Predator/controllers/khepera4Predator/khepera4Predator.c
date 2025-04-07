@@ -25,162 +25,119 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
+#include "../op_matrices.h"
 #define MAX_SPEED 47.6
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
-
-#define NUMBER_OF_ULTRASONIC_SENSORS 5
-static const char *ultrasonic_sensors_names[NUMBER_OF_ULTRASONIC_SENSORS] = {
-  "left ultrasonic sensor", "front left ultrasonic sensor", "front ultrasonic sensor", "front right ultrasonic sensor",
-  "right ultrasonic sensor"};
-
-#define NUMBER_OF_INFRARED_SENSORS 12
-static const char *infrared_sensors_names[NUMBER_OF_INFRARED_SENSORS] = {
-  // turret sensors
-  "rear left infrared sensor", "left infrared sensor", "front left infrared sensor", "front infrared sensor",
-  "front right infrared sensor", "right infrared sensor", "rear right infrared sensor", "rear infrared sensor",
-  // ground sensors
-  "ground left infrared sensor", "ground front left infrared sensor", "ground front right infrared sensor",
-  "ground right infrared sensor"};
   
-char* generate_filename() {
-    time_t t = time(NULL);
-    struct tm *tm_info = localtime(&t);
+int contador = 0;
 
-    // Obtener la ruta de HOME
+char* generate_filename() {
     const char *home = getenv("HOME");
     if (home == NULL) {
         fprintf(stderr, "Error: No se pudo obtener la variable HOME.\n");
         return NULL;
     }
 
-    // Tamaño suficiente para la ruta completa
-    size_t max_size = strlen(home) + strlen("/Pray-vs-Predator/Pray_vs_Predator/images/Predator/khepera_predator_YYYYMMDD_HHMMSS.png") + 1;
+    size_t max_size = strlen(home) + strlen("/Pray-vs-Predator/Pray_vs_Predator/images/Predator/khepera_predator_#.png") + 1;
     char *filepath = (char *)malloc(max_size);
     if (filepath == NULL) {
         fprintf(stderr, "Error: No se pudo asignar memoria para el filename.\n");
         return NULL;
     }
 
-    // Construir la ruta base
-    snprintf(filepath, max_size, "%s/Pray-vs-Predator/Pray_vs_Predator/images/Predator/", home);
+    snprintf(filepath, max_size, "%s/Pray-vs-Predator/Pray_vs_Predator/images/Predator/khepera_predator_", home);
+    snprintf(filepath + strlen(filepath), max_size - strlen(filepath), "%d.png", contador);
 
-    // Generar el nombre con la fecha y hora
-    char timestamp[50];  // Espacio suficiente para la fecha y hora
-    strftime(timestamp, sizeof(timestamp), "khepera_predator_%Y%m%d_%H%M%S.png", tm_info);
-
-    // Concatenar la ruta con el nombre del archivo
-    strncat(filepath, timestamp, max_size - strlen(filepath) - 1);
-
-    return filepath;  // Retorna la ruta completa del archivo
+    contador++;
+    return filepath;
 }
+
 
 int main(int argc, char **argv) {
   wb_robot_init();
 
   int time_step = (int)wb_robot_get_basic_time_step();
-  int i;
 
-  // get and enable the camera
+  // Obtener y habilitar la cámara
   WbDeviceTag camera = wb_robot_get_device("camera");
   wb_camera_enable(camera, time_step);
   
   int width = wb_camera_get_width(camera);
   int height = wb_camera_get_height(camera);
-
-  // get and enable the ultrasonic sensors
-  WbDeviceTag ultrasonic_sensors[5];
-  for (i = 0; i < 5; ++i) {
-    ultrasonic_sensors[i] = wb_robot_get_device(ultrasonic_sensors_names[i]);
-    wb_distance_sensor_enable(ultrasonic_sensors[i], time_step);
-  }
-
-  // get and enable the infrared sensors
-  WbDeviceTag infrared_sensors[12];
-  for (i = 0; i < 12; ++i) {
-    infrared_sensors[i] = wb_robot_get_device(infrared_sensors_names[i]);
-    wb_distance_sensor_enable(infrared_sensors[i], time_step);
-  }
-
-  // get the led actuators
-  WbDeviceTag leds[3] = {wb_robot_get_device("front left led"), wb_robot_get_device("front right led"),
-                         wb_robot_get_device("rear led")};
-
-  // get the motors and set target position to infinity (speed control)
-  WbDeviceTag left_motor, right_motor;
-  left_motor = wb_robot_get_device("left wheel motor");
-  right_motor = wb_robot_get_device("right wheel motor");
-  wb_motor_set_position(left_motor, INFINITY);
-  wb_motor_set_position(right_motor, INFINITY);
-  wb_motor_set_velocity(left_motor, 0.0);
-  wb_motor_set_velocity(right_motor, 0.0);
-
-  // store the last time a message was displayed
-  int last_display_second = 0;
   
-  unsigned char *rgb_image = (unsigned char *)malloc(3 * width * height * sizeof(unsigned char));
+  int last_display_second = 0;
+    
+  // Asignar memoria para las imágenes (20 filas en vez de todo el alto)
+  uint8_t* imagen_gris = malloc(width * 20);  // Solo un byte por píxel (escala de grises)
+  uint8_t* imagen_azul = malloc(width * 20);  // Solo un byte por píxel (canal azul)
 
-  // main loop
   while (wb_robot_step(time_step) != -1) {
-    // display some sensor data every second
-    // and change randomly the led colors
     int display_second = (int)wb_robot_get_time();
     if (display_second != last_display_second) {
       last_display_second = display_second;
-
       printf("time = %d [s]\n", display_second);
-      for (i = 0; i < 5; ++i)
-        printf("- ultrasonic sensor('%s') = %f [m]\n", ultrasonic_sensors_names[i],
-               wb_distance_sensor_get_value(ultrasonic_sensors[i]));
-      for (i = 0; i < 12; ++i)
-        printf("- infrared sensor('%s') = %f [m]\n", infrared_sensors_names[i],
-               wb_distance_sensor_get_value(infrared_sensors[i]));
-
-      for (i = 0; i < 3; ++i){
-        wb_led_set(leds[i], 0xFFFFFF & rand());
-        }
         
       const unsigned char *image = wb_camera_get_image(camera);
 
-        if (image) {
-            printf("📸 Capturando imagen...\n");
+      if (image) {
+        int filas_a_extraer = 20;
+        int fila_inicio = (height - filas_a_extraer) / 2;
+        
+        // Extraer las 20 filas centrales
+        for (int y = 0; y < filas_a_extraer; y++) {
+          int fila_real = fila_inicio + y;
+          for (int x = 0; x < width; x++) {
+            int index = 4 * (fila_real * width + x);  // BGRA
+            unsigned char B = image[index + 0];
+            unsigned char G = image[index + 1];
+            unsigned char R = image[index + 2];
 
-            // Convertir de BGRA a RGB (Webots devuelve BGRA)
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    int index = (y * width + x) * 4;  // BGRA usa 4 bytes por píxel
-                    int new_index = (y * width + x) * 3; // RGB usa 3 bytes por píxel
-                    rgb_image[new_index] = image[index + 2];     // Rojo
-                    rgb_image[new_index + 1] = image[index + 1]; // Verde
-                    rgb_image[new_index + 2] = image[index];     // Azul
-                }
-            }
-
-            // Crear un nombre de archivo único
-            char *filename = generate_filename();
-
-
-            // Guardar la imagen en formato PNG
-            if (stbi_write_png(filename, width, height, 3, rgb_image, width * 3)) {
-                printf("✅ Imagen guardada en: %s\n", filename);
+            // Convertir a gris usando fórmula estándar de luminancia
+            uint8_t gris = (uint8_t)(0.114 * B + 0.587 * G + 0.299 * R);
+            imagen_gris[y * width + x] = gris;
+        
+         if (R > 200 && G > 200 && B > 200) {
+            // Este píxel es blanco, no lo tomamos
+            imagen_azul[y * width + x] = 0;  // O asignar un valor que no se vea en la imagen
+        } else {
+            // Aplicar threshold al componente azul
+            int threshold = 100;  // Ajusta este valor según lo que consideres como umbral
+            if (B > threshold) {
+                imagen_azul[y * width + x] = B;  // Guardar el valor del canal azul si es mayor que el umbral
             } else {
-                printf("⚠️ Error al guardar la imagen.\n");
+                imagen_azul[y * width + x] = 0;  // Si no, asignar 0 (sin valor visible)
             }
+        }
+          }
+        }
 
-            free(filename); // Liberar la memoria del nombre de archivo
-            }
+        // Guardar imagen gris
+        char *filename_gris = generate_filename();
+        if (stbi_write_png(filename_gris, width, filas_a_extraer, 1, imagen_gris, width)) {
+          printf("Imagen gris guardada en: %s\n", filename_gris);
+        } else {
+          printf("Error al guardar la imagen gris.\n");
+        }
+
+        // Guardar imagen con solo canal azul
+        char *filename_azul = generate_filename();
+        if (stbi_write_png(filename_azul, width, filas_a_extraer, 1, imagen_azul, width)) {
+          printf("Imagen azul guardada en: %s\n", filename_azul);
+        } else {
+          printf("Error al guardar la imagen azul.\n");
+        }
+
+        free(filename_gris);
+        free(filename_azul);
+      }
     }
+  }
 
-    // simple obstacle avoidance algorithm
-    // based on the front infrared sensors
-    double speed_offset = 0.2 * (MAX_SPEED - 0.03 * wb_distance_sensor_get_value(infrared_sensors[3]));
-    double speed_delta =
-      0.03 * wb_distance_sensor_get_value(infrared_sensors[2]) - 0.03 * wb_distance_sensor_get_value(infrared_sensors[4]);
-    wb_motor_set_velocity(left_motor, speed_offset + speed_delta);
-    wb_motor_set_velocity(right_motor, speed_offset - speed_delta);
-  };
+  // Liberar memoria de las imágenes al final
+  free(imagen_gris);
+  free(imagen_azul);
 
   wb_robot_cleanup();
 

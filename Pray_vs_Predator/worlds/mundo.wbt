@@ -1,60 +1,65 @@
 #VRML_SIM R2025a utf8
 
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Asphalt.proto"
 EXTERNPROTO "../protos/Khepera4Predator.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Parquetry.proto"
 IMPORTABLE EXTERNPROTO "../protos/Khepera4Pray.proto"
 
 WorldInfo {
 }
 Viewpoint {
-  orientation 0.2965959685406743 -0.10637861614885233 -0.9490597565336307 3.7977674551571754
-  position 2.552054851551479 -1.1543124887513432 1.26426099322001
+  orientation -0.14355069996535147 0.03727227771586197 0.9889408343542749 2.638924560425857
+  position 3.0368678050288667 -2.4586655683089096 0.523985046916581
 }
-TexturedBackgroundLight {
+Background {
+  skyColor [
+    1 1 1
+  ]
+}
+DirectionalLight {
+  direction -1 -1 -1
 }
 RectangleArena {
   floorSize 5 5
-  floorAppearance Parquetry {
-    type "light strip"
+  floorAppearance Appearance {
+    material Material {
+      ambientIntensity 0
+      diffuseColor 0 0 0
+      shininess 0
+    }
+  }
+  wallAppearance Appearance {
+    material Material {
+      ambientIntensity 0
+      diffuseColor 1 1 1
+      emissiveColor 1 1 1
+      shininess 0
+    }
   }
 }
 Khepera4Predator {
-  translation 0.237697 0.272204 -0.000160509
-  rotation -3.096818554169204e-06 -2.4829658507240495e-06 0.9999999999921223 2.4661465564601293
+  hidden position_0_0 6.617934287132682e-14
+  hidden position_0_1 2.1090840045193896e-13
+  translation 0.6106530000000271 -0.11450799999998877 -0.00016052538236075928
+  rotation 2.2862496018555577e-10 6.510309413600363e-10 1 2.4661465564593796
   name "Khepera IV(1)"
   controller "khepera4Predator"
 }
 Solid {
-  translation 1.17091 1.3117267667501094 0.00409331151464034
-  rotation -1 -1.602915282460456e-13 1.3183693313683205e-15 0.017001825901826396
+  translation -8.40810990604345e-18 -1.33874179686821 0.039882821655147734
+  rotation 1 2.2548147040624293e-13 1.5047529107163432e-15 0.0005687514965286367
   children [
     Shape {
-      appearance Asphalt {
-      }
-      geometry Box {
-        size 0.1 3.085568060681531 0.1
-      }
-    }
-  ]
-  boundingObject Box {
-    size 0.1 3.0819545391713996 0.1
-  }
-  physics Physics {
-  }
-}
-Solid {
-  translation -2.8170540717928377e-18 -1.3400017801013824 0.03968842412240786
-  rotation 1 6.599220787284256e-13 -6.143438137275884e-15 0.0006843673382509704
-  children [
-    Shape {
-      appearance Asphalt {
+      appearance Appearance {
+        material Material {
+          ambientIntensity 0
+          diffuseColor 1 1 1
+          emissiveColor 1 1 1
+        }
       }
       geometry Box {
         size 0.1 2.3350486777859025 0.1
       }
+      castShadows FALSE
     }
   ]
   name "solid(1)"
@@ -63,8 +68,12 @@ Solid {
   }
   physics Physics {
   }
+  linearVelocity 1.004611184887014e-17 0.00038576290212104984 5.951726166839479e-05
+  angularVelocity -3.5405103647496785e-05 1.0023825462296516e-15 -1.1465817317392243e-17
 }
 Khepera4Pray {
-  rotation 0 0 1 2.0944
-  controller "khepera4Pray"
+  hidden position_0_0 1.5560660266154884e-12
+  hidden position_0_1 -1.6733851549490505e-12
+  translation -3.540700724617985e-18 -1.1868437043282603e-10 -0.00016052538228314428
+  rotation 0.9999999999980587 -2.941643222505688e-08 -1.9702748142321128e-06 2.541447435362789e-09
 }
